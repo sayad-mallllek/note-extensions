@@ -1,35 +1,66 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import { Circle, Container, defineConfig, Heading } from "@chakra-ui/react";
+
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { ColorModeButton, ColorModeProvider } from "./components/ui/color-mode";
+import NoteList from "./components/modules/note-list";
+import NotesDrawer from "./components/modules/notes-drawer";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [notes, setNotes] = useState<{ element: HTMLElement; note: string }[]>(
+    []
+  );
+
+  const handleClick = (event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const note = `Note attached to ${target.tagName}`;
+    setNotes([...notes, { element: target, note }]);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ChakraProvider value={defaultSystem}>
+      <ColorModeProvider defaultTheme="light" forcedTheme="light">
+        <Container
+          minHeight={"100dvh"}
+          background={"white"}
+          onClick={handleClick}
+          position="relative"
+        >
+          <Heading>Header</Heading>
+          <NoteList
+            notes={[
+              {
+                title: "Note 1",
+                message: "This is note 1",
+                createdAt: new Date(),
+              },
+              {
+                title: "Note 2",
+                message: "This is note 2",
+                createdAt: new Date(),
+              },
+            ]}
+          />
+          {notes.map((note, index) => (
+            <div
+              key={index}
+              style={{
+                position: "absolute",
+                left: note.element.getBoundingClientRect().left,
+                top: note.element.getBoundingClientRect().top,
+
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <Circle size={4} bg={"red.500"} />
+            </div>
+          ))}
+          <NotesDrawer />
+        </Container>
+      </ColorModeProvider>
+    </ChakraProvider>
+  );
 }
 
-export default App
+export default App;
